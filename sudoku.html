@@ -51,7 +51,8 @@ video {
   display: inline-block;
   vertical-align: baseline;
 }
-audio:not([controls]) {
+audio:not([
+    rols]) {
   display: none;
   height: 0;
 }
@@ -13171,9 +13172,10 @@ That is, no digit can appear twice in a unit, and every digit must appear once. 
 <span class="n">rows</span>     <span class="o">=</span> <span class="s1">&#39;ABCDEFGHI&#39;</span>
 <span class="n">cols</span>     <span class="o">=</span> <span class="n">digits</span>
 <span class="n">squares</span>  <span class="o">=</span> <span class="n">cross</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span>
+<span class="n">boxes</span> <span class="o">=</span> <span class="p">[</span><span class="n">cross</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="n">cs</span><span class="p">)</span> <span class="k">for</span> <span class="n">rs</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ABC&#39;</span><span class="p">,</span><span class="s1">&#39;DEF&#39;</span><span class="p">,</span><span class="s1">&#39;GHI&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">cs</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">,</span><span class="s1">&#39;456&#39;</span><span class="p">,</span><span class="s1">&#39;789&#39;</span><span class="p">)]</span>
 <span class="n">unitlist</span> <span class="o">=</span> <span class="p">([</span><span class="n">cross</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]</span> <span class="o">+</span>
             <span class="p">[</span><span class="n">cross</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span> <span class="o">+</span>
-            <span class="p">[</span><span class="n">cross</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="n">cs</span><span class="p">)</span> <span class="k">for</span> <span class="n">rs</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;ABC&#39;</span><span class="p">,</span><span class="s1">&#39;DEF&#39;</span><span class="p">,</span><span class="s1">&#39;GHI&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">cs</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;123&#39;</span><span class="p">,</span><span class="s1">&#39;456&#39;</span><span class="p">,</span><span class="s1">&#39;789&#39;</span><span class="p">)])</span>
+            <span class="n">boxes</span><span class="p">)</span>
 <span class="n">units</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">unitlist</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">u</span><span class="p">])</span> 
              <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">squares</span><span class="p">)</span>
 <span class="n">peers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">s</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">units</span><span class="p">[</span><span class="n">s</span><span class="p">],[]))</span><span class="o">-</span><span class="nb">set</span><span class="p">([</span><span class="n">s</span><span class="p">]))</span>
@@ -13429,8 +13431,11 @@ That is, no digit can appear twice in a unit, and every digit must appear once. 
 <li><code>assign()</code> removed</li>
 <li><code>eliminate()</code> edited</li>
 <li><code>only_choice()</code> added</li>
-<li><code>score</code> added</li>
-<li><code>statistics</code> added</li>
+<li><code>score()</code> added</li>
+<li><code>reduce_puzzle()</code> added</li>
+<li><code>search()</code> added</li>
+<li><code>generate_puzzles()</code> added</li>
+<li><code>statistics()</code> added</li>
 </ul>
 
 </div>
@@ -13690,10 +13695,13 @@ That is, no digit can appear twice in a unit, and every digit must appear once. 
     <span class="n">prevScore</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span> <span class="c1"># initate with a value bigger than the maximum possible score (9*81=729)</span>
     
     <span class="k">while</span> <span class="p">(</span><span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">&lt;</span><span class="n">prevScore</span> <span class="ow">and</span> <span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">81</span><span class="p">):</span> <span class="c1"># loop as long as there is progress and the puzzle is not solved</span>
+        
         <span class="n">prevScore</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        
         <span class="n">values</span> <span class="o">=</span> <span class="n">eliminate</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">only_choice</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-        
+
+
     <span class="k">return</span> <span class="n">values</span> 
 
 <span class="n">values</span> <span class="o">=</span> <span class="n">reduce_puzzle</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
@@ -13737,7 +13745,8 @@ That is, no digit can appear twice in a unit, and every digit must appear once. 
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="7.-Test-run">7. Test run<a class="anchor-link" href="#7.-Test-run">&#182;</a></h2>
+<h3 id="Conflict">Conflict<a class="anchor-link" href="#Conflict">&#182;</a></h3><p>The conflict function checks if our result puzzle meets the sudoku requirement (every unit has each digit appearing exactly once)</p>
+
 </div>
 </div>
 </div>
@@ -13746,13 +13755,121 @@ That is, no digit can appear twice in a unit, and every digit must appear once. 
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">conflict</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check of there is a conflict in the solution&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">unitlist</span><span class="p">:</span>
+        <span class="n">allVals</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">u</span><span class="p">:</span> 
+            <span class="n">allVals</span> <span class="o">=</span> <span class="n">allVals</span> <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+        <span class="n">repeat</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">digits</span> <span class="k">if</span> <span class="n">allVals</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span> <span class="c1"># list of repeated digits</span>
+        <span class="k">if</span> <span class="n">repeat</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span> <span class="c1"># yes, there is a conflict</span>
+    
+    <span class="k">return</span> <span class="kc">False</span> <span class="c1"># no, there is no conflict</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Search">Search<a class="anchor-link" href="#Search">&#182;</a></h3><p>If the <code>reduce_puzzle()</code> function is not enough to solve a puzzle, begin guessing by choosing a digit from available options.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Solve puzzle using reduce_puzzle and back-propagation&quot;&quot;&quot;</span>  
+    
+    <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span> <span class="c1"># failed earlier</span>
+    
+    <span class="n">values</span><span class="o">=</span><span class="n">reduce_puzzle</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="c1"># reduce as much as possible without guessing</span>
+        
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">conflict</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">values</span> <span class="c1"># solved!</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span> <span class="c1"># not solved properly</span>
+        
+    <span class="c1"># Chose the unfilled square s with the fewest possibilities</span>
+    <span class="n">n</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="nb">min</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">]),</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">squares</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+        
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">]:</span> <span class="c1"># iterate over all possible digits in square</span>
+        <span class="n">vc</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">vc</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">=</span><span class="n">d</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span> <span class="c1"># if a solution has been found finish the search</span>
+            <span class="k">return</span> <span class="n">result</span> 
+        
+    <span class="k">return</span> <span class="kc">False</span> <span class="c1"># no solution could be found</span>
+    
+    
+<span class="n">values</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>4 1 7 |3 6 9 |8 2 5 
+6 3 2 |1 5 8 |9 4 7 
+9 5 8 |7 2 4 |3 1 6 
+------+------+------
+8 2 5 |4 3 7 |1 6 9 
+7 9 1 |5 8 6 |4 3 2 
+3 4 6 |9 1 2 |7 5 8 
+------+------+------
+2 8 9 |6 4 3 |5 7 1 
+5 7 3 |2 9 1 |6 8 4 
+1 6 4 |8 7 5 |2 9 3 
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="6.-Test-run">6. Test run<a class="anchor-link" href="#6.-Test-run">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="s1">&#39;003020600900305001001806400008102900700000008006708200002609500800203009005010300&#39;</span>
 
 <span class="n">values</span> <span class="o">=</span> <span class="n">parse_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Entry puzzle ( score:&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">),</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">grid_values</span><span class="p">(</span><span class="n">grid</span><span class="p">))</span>
 
-<span class="n">values</span> <span class="o">=</span> <span class="n">reduce_puzzle</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+<span class="n">values</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Result puzzle ( score:&quot;</span><span class="p">,</span> <span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">),</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
 </pre></div>
@@ -13808,54 +13925,54 @@ Result puzzle ( score: 81 )
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="8.-Statistics">8. Statistics<a class="anchor-link" href="#8.-Statistics">&#182;</a></h2><p>In order to see how well our functions solve a puzzle, we will run the <code>puzzle_solver()</code> on 95 difficult and 50 easy puzzles (puzzle source: <a href="http://norvig.com/">http://norvig.com/</a>) and see how many puzzles are solved and how long the solving takes.</p>
+<h2 id="7.-Generating-our-own-sudoku-puzzles">7. Generating our own sudoku puzzles<a class="anchor-link" href="#7.-Generating-our-own-sudoku-puzzles">&#182;</a></h2><p>The goal is to create sudoku grids that are as difficult as possible while still having a solution.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">timeit</span> <span class="k">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span>
-<span class="kn">from</span> <span class="nn">statistics</span> <span class="k">import</span> <span class="n">mean</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
 
-<span class="k">def</span> <span class="nf">statistics</span><span class="p">(</span><span class="n">grids</span><span class="p">):</span>
-    <span class="n">times</span><span class="o">=</span><span class="p">[]</span>
-    <span class="n">solved</span><span class="o">=</span><span class="p">[]</span>
-    <span class="n">scores</span><span class="o">=</span><span class="p">[]</span>
+<span class="k">def</span> <span class="nf">pick_one</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pick a random digit from available values&quot;&quot;&quot;</span>
     
-    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">grids</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">puzzle</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">parse_grid</span><span class="p">(</span><span class="n">puzzle</span><span class="p">)</span>
-        
-        <span class="n">start</span><span class="o">=</span><span class="n">timer</span><span class="p">()</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">reduce_puzzle</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-        <span class="n">end</span><span class="o">=</span><span class="n">timer</span><span class="p">()</span>
-        <span class="c1">#display(values)</span>
-        
-        <span class="k">if</span> <span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">==</span><span class="mi">81</span><span class="p">:</span>
-            <span class="n">solved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">solved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
-        <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
-     
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Puzzles fully solved:&quot;</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">solved</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average time of solving a puzzle: </span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mean</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="s2">&quot;seconds&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average score of solving a puzzle: </span><span class="si">%.0f</span><span class="s2">&quot;</span> <span class="o">%</span>  <span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">))</span>
-    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">options</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+</pre></div>
 
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">generate_full_puzzle</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Generate a fully solved puzzle&quot;&quot;&quot;</span>
     
-    <span class="k">return</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="s2">&quot;.................................................................................&quot;</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">parse_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
 
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>      
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">])</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">pick_one</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">eliminate</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">only_choice</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            
+    
+    <span class="k">if</span> <span class="n">conflict</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">generate_full_puzzle</span><span class="p">()</span> <span class="c1"># if a puzzle is invalid, try again</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">values</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;------- 95 hard puzzles -------&quot;</span><span class="p">)</span>
-<span class="n">statistics</span><span class="p">(</span><span class="s2">&quot;top95.txt&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------- 50 easy puzzles -------&quot;</span><span class="p">)</span>
-<span class="n">statistics</span><span class="p">(</span><span class="s2">&quot;easy50.txt&quot;</span><span class="p">)</span>
+<span class="n">values</span> <span class="o">=</span> <span class="n">generate_full_puzzle</span><span class="p">()</span>
+<span class="n">display</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13872,15 +13989,18 @@ Result puzzle ( score: 81 )
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>------- 95 hard puzzles -------
-Puzzles fully solved: 0
-Average time of solving a puzzle: 0.0018 seconds
-Average score of solving a puzzle: 255
+<pre>1 7 4 |5 8 2 |3 9 6 
+5 6 8 |3 9 1 |7 2 4 
+3 2 9 |6 7 4 |8 5 1 
+------+------+------
+7 5 2 |1 3 6 |9 4 8 
+9 4 3 |2 5 8 |6 1 7 
+6 8 1 |7 4 9 |2 3 5 
+------+------+------
+4 1 6 |9 2 7 |5 8 3 
+2 3 7 |8 1 5 |4 6 9 
+8 9 5 |4 6 3 |1 7 2 
 
-------- 50 easy puzzles -------
-Puzzles fully solved: 40
-Average time of solving a puzzle: 0.0018 seconds
-Average score of solving a puzzle: 101
 </pre>
 </div>
 </div>
@@ -13891,13 +14011,173 @@ Average score of solving a puzzle: 101
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">parse_back</span> <span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return sudoku in grid form&quot;&quot;&quot;</span>
+    
+    <span class="n">grid</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+        <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="o">+</span><span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">grid</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">parse_back</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>174582396568391724329674851752136948943258617681749235416927583237815469895463172
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">generate_puzzles</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a file containing sudoku puzzles&quot;&quot;&quot;</span>
+    
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="s2">&quot;w+&quot;</span><span class="p">)</span>
+        
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">generate_full_puzzle</span><span class="p">()</span>
+        
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="k">for</span> <span class="n">blank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">):</span> <span class="c1"># number of squares that are left blank. The more blanks, the harder the puzzle. </span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+            <span class="k">del</span> <span class="n">vals</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+        
+        <span class="n">grid</span><span class="o">=</span><span class="n">parse_back</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">grid</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> 
+        
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span>  
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">generate_puzzles</span><span class="p">(</span><span class="s2">&quot;generatedPuzzles.txt&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="8.-Statistics">8. Statistics<a class="anchor-link" href="#8.-Statistics">&#182;</a></h2><p>In order to see how well our functions solve a puzzle, we will run the <code>search()</code> on 95 difficult and 50 easy puzzles (puzzle source: <a href="http://norvig.com/">http://norvig.com/</a>) and see how many puzzles are solved and how long the solving takes. 
+Additionally, we'll test out self-generated sudoku puzzles.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">timeit</span> <span class="k">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span>
+<span class="kn">from</span> <span class="nn">statistics</span> <span class="k">import</span> <span class="n">mean</span>
+
+<span class="k">def</span> <span class="nf">statistics</span><span class="p">(</span><span class="n">grids</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run and time search() on multiple puzzles&quot;&quot;&quot;</span>
+    <span class="n">times</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">solved</span><span class="o">=</span><span class="p">[]</span>
+    
+    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">grids</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">puzzle</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">parse_grid</span><span class="p">(</span><span class="n">puzzle</span><span class="p">)</span>
+        
+        <span class="n">start</span><span class="o">=</span><span class="n">timer</span><span class="p">()</span>
+        <span class="c1">#values = reduce_puzzle(values)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">end</span><span class="o">=</span><span class="n">timer</span><span class="p">()</span>
+        <span class="c1">#display(values)</span>
+        
+        <span class="k">if</span> <span class="n">score</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">==</span><span class="mi">81</span><span class="p">:</span>
+            <span class="n">solved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">solved</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span>
+     
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Puzzles fully solved:&quot;</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">solved</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average time of solving a puzzle: </span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mean</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="s2">&quot;seconds&quot;</span><span class="p">)</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    <span class="k">return</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;------- 50 easy puzzles -------&quot;</span><span class="p">)</span>
+<span class="n">statistics</span><span class="p">(</span><span class="s2">&quot;easy50.txt&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------- 95 hard puzzles -------&quot;</span><span class="p">)</span>
+<span class="n">statistics</span><span class="p">(</span><span class="s2">&quot;top95.txt&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">------- 50 self-generated puzzles -------&quot;</span><span class="p">)</span>
+<span class="n">statistics</span><span class="p">(</span><span class="s2">&quot;generatedPuzzles.txt&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>------- 50 easy puzzles -------
+Puzzles fully solved: 50
+Average time of solving a puzzle: 0.0030 seconds
+
+------- 95 hard puzzles -------
+Puzzles fully solved: 95
+Average time of solving a puzzle: 0.2136 seconds
+
+------- 50 self-generated puzzles -------
+Puzzles fully solved: 50
+Average time of solving a puzzle: 0.4134 seconds
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
